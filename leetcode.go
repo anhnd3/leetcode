@@ -1,7 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"math"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 // === Problem 1 ===
@@ -126,6 +129,226 @@ func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
 
 // === End Problem 4 ===
 
+// === Problem 5 ===
+func longestPalindrome(s string) string {
+	if s == "" || len(s) < 1 {
+		return ""
+	}
+
+	var start, end int
+	for i := 0; i < len(s); i++ {
+		len1 := expandAroundCenter(s, i, i)
+		len2 := expandAroundCenter(s, i, i+1)
+		lenDiff := max(len1, len2)
+		if lenDiff > end-start {
+			start = i - (lenDiff-1)/2
+			end = i + lenDiff/2
+		}
+	}
+	return s[start : end+1]
+}
+
+func expandAroundCenter(s string, left, right int) int {
+	for left >= 0 && right < len(s) && s[left] == s[right] {
+		left--
+		right++
+	}
+	return right - left - 1
+}
+
+// === End Problem 5 ===
+
+// === Problem 6 ===
+// func convert(s string, numRows int) string {
+// 	if len(s) == 1 || numRows == 1 {
+// 		return s
+// 	}
+// 	var result string
+// 	matrix := make([][]string, numRows)
+// 	matrixCol := len(s)/2 + 1
+// 	for i := 0; i < numRows; i++ {
+// 		matrix[i] = make([]string, matrixCol)
+// 	}
+
+// 	var row, col int
+// 	var incr bool
+
+// 	for i := 0; i < len(s); i++ {
+// 		matrix[row][col] = string(s[i])
+// 		if row == 0 {
+// 			incr = true
+// 		} else if row == numRows-1 {
+// 			incr = false
+// 		}
+
+// 		if incr {
+// 			row++
+// 		} else {
+// 			row--
+// 			col++
+// 		}
+// 	}
+
+// 	for i := 0; i < numRows; i++ {
+// 		for j := 0; j < matrixCol; j++ {
+// 			result += matrix[i][j]
+// 		}
+// 	}
+
+// 	return result
+// }
+
+func convert(s string, numRows int) string {
+	if s == "" || numRows == 1 || len(s) <= numRows {
+		return s
+	}
+	zigzagPeriod := 2*numRows - 2
+	stringLen := len(s)
+	var output strings.Builder
+
+	for i := 0; i < numRows; i++ {
+		output.WriteByte(s[i])
+		period1 := zigzagPeriod - i*2
+		period2 := zigzagPeriod - period1
+		pointer := i
+
+		for pointer < stringLen {
+			pointer += period1
+			if pointer < stringLen && period1 != 0 {
+				output.WriteByte(s[pointer])
+			}
+			pointer += period2
+			if pointer < stringLen && period2 != 0 {
+				output.WriteByte(s[pointer])
+			}
+		}
+	}
+	return output.String()
+}
+
+// === End Problem 6 ===
+
+// === Problem 7 ===
+func reverse(x int) int {
+	if x > 0 && x < 10 {
+		return x
+	}
+
+	var result, sign int64
+
+	sign = 1
+	if x < 0 {
+		sign = -1
+		x = -x
+	}
+
+	y := int64(x)
+	for y > 0 {
+		result = result*10 + y%10
+		y = y / 10
+	}
+
+	result *= sign
+
+	if result > math.MaxInt32 || result < math.MinInt32 {
+		return 0
+	}
+
+	return int(result)
+}
+
+// === End Problem 7 ===
+
+// === Problem 8 ===
+func myAtoi(str string) int {
+	strTrim := strings.Trim(str, " ")
+	re := regexp.MustCompile(`^[-|+|\d]\d*`)
+	strResult := string(re.Find([]byte(strTrim)))
+
+	result, _ := strconv.ParseInt(strResult, 10, 64)
+	if result > math.MaxInt32 {
+		return math.MaxInt32
+	}
+
+	if result < math.MinInt32 {
+		return math.MinInt32
+	}
+
+	return int(result)
+}
+
+// === End Problem 8 ===
+
+// === Problem 9 ===
+func isPalindrome(x int) bool {
+	strX := strconv.Itoa(x)
+	var left int
+	var right int = len(strX) - 1
+
+	for left < right {
+		if strX[left] == strX[right] {
+			left++
+			right--
+		} else {
+			return false
+		}
+	}
+	return true
+}
+
+// === Problem 10 ===
+func isMatch(s string, p string) bool {
+	p += "$"
+	result, _ := regexp.MatchString(p, s)
+
+	if result == true {
+		re := regexp.MustCompile(p)
+		strRexp := string(re.Find([]byte(s)))
+		if strRexp != s {
+			return false
+		}
+		return true
+	}
+
+	return false
+}
+
+// === End Problem 10 ===
+
+// === Problem 11 ===
+func maxArea(height []int) int {
+	// var max int
+	// for i := 0; i < len(height); i++ {
+	//     for j := i + 1 ; j < len(height); j++ {
+	//         minVal :=min(height[i], height[j])
+	//         area := minVal * (j - i)
+	//         if area > max {
+	//             max = area
+	//         }
+	//     }
+	// }
+	// return max
+	var left, right, max int
+	right = len(height) - 1
+
+	for left < right {
+		area := min(height[left], height[right]) * (right - left)
+		if area > max {
+			max = area
+		}
+		if height[left] < height[right] {
+			left++
+		} else {
+			right--
+		}
+	}
+	return max
+}
+
+// === End Problem 11 ===
+
 func main() {
-	fmt.Println(findMedianSortedArrays([]int{1}, []int{1}))
+	isMatch("", ".")
+	isMatch("", ".*")
+	isMatch("aa", "a")
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -317,17 +318,6 @@ func isMatch(s string, p string) bool {
 
 // === Problem 11 ===
 func maxArea(height []int) int {
-	// var max int
-	// for i := 0; i < len(height); i++ {
-	//     for j := i + 1 ; j < len(height); j++ {
-	//         minVal :=min(height[i], height[j])
-	//         area := minVal * (j - i)
-	//         if area > max {
-	//             max = area
-	//         }
-	//     }
-	// }
-	// return max
 	var left, right, max int
 	right = len(height) - 1
 
@@ -347,8 +337,167 @@ func maxArea(height []int) int {
 
 // === End Problem 11 ===
 
+// === Problem 12 ===
+func intToRoman(num int) string {
+	var result string
+	if num < 1 || num > 3999 {
+		return ""
+	}
+
+	for num > 0 {
+		if num >= 1000 {
+			repeat := num / 1000
+			for i := 0; i < repeat; i++ {
+				result += "M"
+			}
+			num -= repeat * 1000
+		} else if num >= 900 {
+			result += "CM"
+			num -= 900
+		} else if num >= 500 {
+			result += "D"
+			num -= 500
+		} else if num >= 400 {
+			result += "CD"
+			num -= 400
+		} else if num >= 100 {
+			repeat := num / 100
+			for i := 0; i < repeat; i++ {
+				result += "C"
+			}
+			num -= repeat * 100
+		} else if num >= 90 {
+			result += "XC"
+			num -= 90
+		} else if num >= 50 {
+			result += "L"
+			num -= 50
+		} else if num >= 40 {
+			result += "XL"
+			num -= 40
+		} else if num >= 10 {
+			repeat := num / 10
+			for i := 0; i < repeat; i++ {
+				result += "X"
+			}
+			num -= repeat * 10
+		} else if num >= 9 {
+			result += "IX"
+			num -= 9
+		} else if num >= 5 {
+			result += "V"
+			num -= 5
+		} else if num >= 4 {
+			result += "IV"
+			num -= 4
+		} else if num >= 1 {
+			for i := 0; i < num; i++ {
+				result += "I"
+			}
+			num -= num
+		}
+	}
+	return result
+}
+
+// === End Problem 12 ===
+
+// === Problem 13 ===
+func romanToInt(s string) int {
+	if s == "" {
+		return 0
+	}
+	mapRoman := map[string]int{
+		"I": 1,
+		"V": 5,
+		"X": 10,
+		"L": 50,
+		"C": 100,
+		"D": 500,
+		"M": 1000}
+	var result int
+	for idx, ch := range s {
+		var curr, next int
+		curr = mapRoman[string(ch)]
+		if idx < len(s)-1 {
+			next = mapRoman[string(s[idx+1])]
+		}
+
+		if curr < next {
+			result -= curr
+		} else {
+			result += curr
+		}
+	}
+	return result
+}
+
+// === End Problem 13 ===
+
+// === Problem 14 ===
+func longestCommonPrefix(strs []string) string {
+	if len(strs) == 0 {
+		return ""
+	}
+	if len(strs) == 1 {
+		return strs[0]
+	}
+	var prefix string
+
+	pattern := strs[0]
+	for _, ch := range pattern {
+		tmpPrefix := prefix + string(ch)
+		for _, str := range strs {
+			if !strings.HasPrefix(str, tmpPrefix) {
+				return prefix
+			}
+		}
+		prefix = tmpPrefix
+	}
+	return prefix
+}
+
+// === End Problem 14 ===
+
+// === Problem 15 ===
+func threeSum(nums []int) [][]int {
+	sort.Ints(nums)
+	var res [][]int
+
+	for i := 0; i < len(nums)-2; i++ {
+		if i == 0 || nums[i] != nums[i-1] {
+			twoSumUniqueParis(nums, nums[i], i+1, &res)
+		}
+	}
+
+	return res
+}
+
+func twoSumUniqueParis(nums []int, n, i int, res *[][]int) {
+	l := i
+	h := len(nums) - 1
+
+	for l < h {
+		if nums[l]+nums[h]+n == 0 {
+			*res = append(*res, []int{n, nums[l], nums[h]})
+			for l < h && nums[l] == nums[l+1] {
+				l++
+			}
+			for l < h && nums[h] == nums[h-1] {
+				h--
+			}
+			l++
+			h--
+		} else if nums[l]+nums[h]+n > 0 {
+			h--
+		} else {
+			l++
+		}
+	}
+}
+
+// === End Problem 15 ===
+
 func main() {
-	isMatch("", ".")
-	isMatch("", ".*")
-	isMatch("aa", "a")
+	threeSum([]int{-1, 0, 1, 2, -1, -4})
 }
